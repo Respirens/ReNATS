@@ -4,7 +4,15 @@ from pydantic import BaseModel
 from typing_extensions import Self
 
 
-class ProtocolMessage(ABC, BaseModel):
+class BaseProtocolMessage(ABC, BaseModel):
+    @abstractmethod
+    def dump(self) -> bytes:
+        """
+        Dump NATS protocol message to bytes
+        :return: NATS protocol message as bytes
+        """
+        pass
+
     @classmethod
     @abstractmethod
     def parse(cls, body: bytes) -> Self:
@@ -12,6 +20,5 @@ class ProtocolMessage(ABC, BaseModel):
         Parse NATS protocol message body
         :param body: NATS protocol message body
         :return: instance of ``ProtocolMessage``
-        :r
         """
         pass
