@@ -1,11 +1,11 @@
 from pydantic import ValidationError
 from typing_extensions import Self
 
-from .message import BaseProtocolMessage
+from .base import BaseServerProtocolMessage
 from ..exceptions import InvalidProtocolMessageBody
 
 
-class InfoProtocolMessage(BaseProtocolMessage):
+class InfoProtocolMessage(BaseServerProtocolMessage):
     server_id: int
     server_name: str
     version: str
@@ -31,13 +31,6 @@ class InfoProtocolMessage(BaseProtocolMessage):
     cluster: str | None = None
     domain: str | None = None
 
-    def dump(self) -> bytes:
-        """
-        Dump NATS protocol INFO message to bytes
-        :return: NATS protocol INFO message as bytes
-        """
-        return f"INFO {self.json(skip_defaults=True)}".encode()
-
     @classmethod
     def parse(cls, body: bytes) -> Self:
         """
@@ -51,4 +44,3 @@ class InfoProtocolMessage(BaseProtocolMessage):
             return cls.parse_raw(body)
         except ValidationError:
             raise InvalidProtocolMessageBody(body)
-

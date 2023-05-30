@@ -1,11 +1,9 @@
-from pydantic import Field, ValidationError
-from typing_extensions import Self
+from pydantic import Field
 
-from .message import BaseProtocolMessage
-from ..exceptions import InvalidProtocolMessageBody
+from .base import BaseClientProtocolMessage
 
 
-class ConnectProtocolMessage(BaseProtocolMessage):
+class ConnectProtocolMessage(BaseClientProtocolMessage):
     verbose: bool
     pedantic: bool
     tls_required: bool
@@ -26,20 +24,6 @@ class ConnectProtocolMessage(BaseProtocolMessage):
     def dump(self) -> bytes:
         """
         Dump NATS protocol CONNECT message to bytes
-        :return: NATS protocol CONNECT message as bytes
+        :return: NATS protocol CONNECT message as bytes-encoded string
         """
-        return f"CONNECT {self.json(skip_defaults=True)}".encode()
-
-    @classmethod
-    def parse(cls, body: bytes) -> Self:
-        """
-        Parse NATS protocol CONNECT message body
-
-        Raises ``InvalidProtocolMessageBody`` if message body is invalid
-        :param body: bytes of JSON-encoded NATS protocol INFO message body
-        :return: instance of ``ConnectProtocolMessage``
-        """
-        try:
-            return cls.parse_raw(body)
-        except ValidationError:
-            raise InvalidProtocolMessageBody(body)
+        return f"CONNECT {self.json(skip_defaults=True)}\r\n".encode()
