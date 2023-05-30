@@ -4,6 +4,9 @@ from .base import BaseClientProtocolMessage
 
 
 class ConnectProtocolMessage(BaseClientProtocolMessage):
+    """
+    NATS protocol message model for CONNECT message
+    """
     verbose: bool
     pedantic: bool
     tls_required: bool

@@ -3,6 +3,9 @@ from .pub import PubProtocolMessage
 
 
 class HPubProtocolMessage(PubProtocolMessage):
+    """
+    NATS protocol message model for HPUB message
+    """
     headers: dict[str, str]
 
     def dump(self) -> bytes:
@@ -14,7 +17,7 @@ class HPubProtocolMessage(PubProtocolMessage):
         head = message.build_head(
             message.HPUB,
             self.subject.encode(),
-            self.reply_to.encode(),
+            b"" if self.reply_to is None else self.reply_to.encode(),
             str(len(headers + message.CRLF + message.CRLF)).encode(),
             str(len(headers + message.CRLF + message.CRLF + self.payload)).encode()
         )

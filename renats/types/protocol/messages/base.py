@@ -5,6 +5,9 @@ from typing_extensions import Self
 
 
 class BaseClientProtocolMessage(ABC, BaseModel):
+    """
+    Base NATS protocol message model for messages sent by client
+    """
     @abstractmethod
     def dump(self) -> bytes:
         """
@@ -15,6 +18,9 @@ class BaseClientProtocolMessage(ABC, BaseModel):
 
 
 class BaseServerProtocolMessage(ABC, BaseModel):
+    """
+    Base NATS protocol message model for messages sent by server
+    """
     @classmethod
     @abstractmethod
     def parse(cls, body: bytes) -> Self:

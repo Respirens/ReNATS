@@ -6,6 +6,9 @@ from ..exceptions import InvalidProtocolMessageBody
 
 
 class InfoProtocolMessage(BaseServerProtocolMessage):
+    """
+    NATS protocol message model for INFO message
+    """
     server_id: int
     server_name: str
     version: str

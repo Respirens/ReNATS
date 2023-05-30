@@ -6,6 +6,8 @@ from .connect import ConnectProtocolMessage
 from .hpub import HPubProtocolMessage
 from .info import InfoProtocolMessage
 from .pub import PubProtocolMessage
+from .sub import SubProtocolMessage
+from .unsub import UnsubProtocolMessage
 
 HEADERS_VERSION: Final[bytes] = b"NATS/1.0"
 
@@ -27,7 +29,9 @@ ERR: Final[bytes] = b"-ERR"
 CLIENT_MESSAGES: Final[dict[bytes, type[BaseClientProtocolMessage]]] = {
     CONNECT: ConnectProtocolMessage,
     PUB: PubProtocolMessage,
-    HPUB: HPubProtocolMessage
+    HPUB: HPubProtocolMessage,
+    SUB: SubProtocolMessage,
+    UNSUB: UnsubProtocolMessage
 }
 
 SERVER_MESSAGES: Final[dict[bytes, type[BaseServerProtocolMessage]]] = {

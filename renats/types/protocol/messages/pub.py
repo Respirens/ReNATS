@@ -3,8 +3,11 @@ from .base import BaseClientProtocolMessage
 
 
 class PubProtocolMessage(BaseClientProtocolMessage):
+    """
+    NATS protocol message model for PUB message
+    """
     subject: str
-    reply_to: str = ""
+    reply_to: str | None = None
     payload: bytes = b""
 
     def dump(self) -> bytes:
@@ -13,6 +16,9 @@ class PubProtocolMessage(BaseClientProtocolMessage):
         :return: NATS protocol PUB message as bytes-encoded string
         """
         head = message.build_head(
-            message.PUB, self.subject.encode(), self.reply_to.encode(), str(len(self.payload)).encode()
+            message.PUB,
+            self.subject.encode(),
+            b"" if self.reply_to is None else self.reply_to.encode(),
+            str(len(self.payload)).encode()
         )
         return head + message.CRLF + self.payload + message.CRLF
