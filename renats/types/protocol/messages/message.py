@@ -3,6 +3,7 @@ from typing import Final
 
 from .base import BaseClientProtocolMessage, BaseServerProtocolMessage
 from .connect import ConnectProtocolMessage
+from .err import ErrProtocolMessage
 from .hpub import HPubProtocolMessage
 from .info import InfoProtocolMessage
 from .pub import PubProtocolMessage
@@ -35,7 +36,8 @@ CLIENT_MESSAGES: Final[dict[bytes, type[BaseClientProtocolMessage]]] = {
 }
 
 SERVER_MESSAGES: Final[dict[bytes, type[BaseServerProtocolMessage]]] = {
-    INFO: InfoProtocolMessage
+    INFO: InfoProtocolMessage,
+    ERR: ErrProtocolMessage
 }
 
 
