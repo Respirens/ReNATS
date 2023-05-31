@@ -1,10 +1,12 @@
-from .base import BaseNatsClient
+from abc import ABC, abstractmethod
 
 
-class NatsClient(BaseNatsClient):
+class BaseNatsClient(ABC):
+    @abstractmethod
     async def connect(self, host: str, port: int):
-        pass
+        raise NotImplementedError()
 
+    @abstractmethod
     async def publish(
             self,
             subject: str,
@@ -12,4 +14,4 @@ class NatsClient(BaseNatsClient):
             reply_subject: str = None,
             headers: dict[str, str] = None
     ):
-        pass
+        raise NotImplementedError()

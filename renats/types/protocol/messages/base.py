@@ -1,3 +1,4 @@
+import abc
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
@@ -14,19 +15,24 @@ class BaseClientProtocolMessage(ABC, BaseModel):
         Dump NATS protocol message to bytes
         :return: NATS protocol message as bytes-encoded string
         """
-        pass
+        raise NotImplementedError()
 
 
 class BaseServerProtocolMessage(ABC, BaseModel):
     """
     Base NATS protocol message model for messages sent by server
     """
+    _has_message_body = NotImplemented
+    _has_message_headers = NotImplemented
+
     @classmethod
     @abstractmethod
-    def parse(cls, body: bytes) -> Self:
+    def load(cls, head: bytes, body: bytes = None, headers: dict[bytes, bytes] = None) -> Self:
         """
-        Parse NATS protocol message body
+        Load NATS protocol message from head and body
+        :param head: NATS protocol message head
         :param body: NATS protocol message body
+        :param headers: NATS protocol message headers
         :return: instance of ``ProtocolMessage``
         """
-        pass
+        raise NotImplementedError()

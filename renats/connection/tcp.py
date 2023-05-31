@@ -1,5 +1,5 @@
-from .connection import Connection
+from .base import BaseConnection
 
 
-class TcpConnection(Connection):
+class TcpConnection(BaseConnection):
     pass

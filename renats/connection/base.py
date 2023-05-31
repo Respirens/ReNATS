@@ -1,5 +1,5 @@
 from abc import ABC
 
 
-class Connection(ABC):
+class BaseConnection(ABC):
     pass

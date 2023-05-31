@@ -1,15 +1,6 @@
 import re
 from typing import Final
 
-from .base import BaseClientProtocolMessage, BaseServerProtocolMessage
-from .connect import ConnectProtocolMessage
-from .err import ErrProtocolMessage
-from .hpub import HPubProtocolMessage
-from .info import InfoProtocolMessage
-from .pub import PubProtocolMessage
-from .sub import SubProtocolMessage
-from .unsub import UnsubProtocolMessage
-
 HEADERS_VERSION: Final[bytes] = b"NATS/1.0"
 
 CRLF: Final[bytes] = b"\r\n"
@@ -26,19 +17,6 @@ PING: Final[bytes] = b"PING"
 PONG: Final[bytes] = b"PONG"
 OK: Final[bytes] = b"+OK"
 ERR: Final[bytes] = b"-ERR"
-
-CLIENT_MESSAGES: Final[dict[bytes, type[BaseClientProtocolMessage]]] = {
-    CONNECT: ConnectProtocolMessage,
-    PUB: PubProtocolMessage,
-    HPUB: HPubProtocolMessage,
-    SUB: SubProtocolMessage,
-    UNSUB: UnsubProtocolMessage
-}
-
-SERVER_MESSAGES: Final[dict[bytes, type[BaseServerProtocolMessage]]] = {
-    INFO: InfoProtocolMessage,
-    ERR: ErrProtocolMessage
-}
 
 
 def encode_headers(headers: dict[str, str]) -> dict[bytes, bytes]:

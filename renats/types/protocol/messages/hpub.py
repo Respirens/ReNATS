@@ -1,4 +1,6 @@
-from . import message
+from pydantic import validator
+
+from . import messages
 from .pub import PubProtocolMessage
 
 
@@ -8,17 +10,24 @@ class HPubProtocolMessage(PubProtocolMessage):
     """
     headers: dict[str, str]
 
+    @validator("headers")
+    def check_headers(cls, v):
+        for key in v:
+            if key.strip() != key:
+                raise ValueError("Header keys must be stripped")
+        return v
+
     def dump(self) -> bytes:
         """
         Dump NATS protocol HPUB message to bytes
         :return: NATS protocol HPUB message as bytes-encoded string
         """
-        headers = message.build_headers(message.encode_headers(self.headers))
-        head = message.build_head(
-            message.HPUB,
+        headers = messages.build_headers(messages.encode_headers(self.headers))
+        head = messages.build_head(
+            messages.HPUB,
             self.subject.encode(),
             b"" if self.reply_to is None else self.reply_to.encode(),
-            str(len(headers + message.CRLF + message.CRLF)).encode(),
-            str(len(headers + message.CRLF + message.CRLF + self.payload)).encode()
+            str(len(headers + messages.CRLF + messages.CRLF)).encode(),
+            str(len(headers + messages.CRLF + messages.CRLF + self.payload)).encode()
         )
-        return head + message.CRLF + headers + message.CRLF + message.CRLF + self.payload + message.CRLF
+        return head + messages.CRLF + headers + messages.CRLF + messages.CRLF + self.payload + messages.CRLF

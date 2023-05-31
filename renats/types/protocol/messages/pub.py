@@ -1,4 +1,6 @@
-from . import message
+from pydantic import validator
+
+from . import messages
 from .base import BaseClientProtocolMessage
 
 
@@ -10,15 +12,33 @@ class PubProtocolMessage(BaseClientProtocolMessage):
     reply_to: str | None = None
     payload: bytes = b""
 
+    @validator("subject")
+    def check_subject(cls, v):
+        if len(v) == 0:
+            raise ValueError("Subject can't be empty string")
+        if " " in v:
+            raise ValueError("Subject can't contain whitespaces")
+        return v
+
+    @validator("reply_to")
+    def check_reply_to(cls, v):
+        if v is None:
+            return v
+        if len(v) == 0:
+            raise ValueError("Reply to can't be empty string, use None instead")
+        if " " in v:
+            raise ValueError("Reply to can't contain whitespaces")
+        return v
+
     def dump(self) -> bytes:
         """
         Dump NATS protocol PUB message to bytes
         :return: NATS protocol PUB message as bytes-encoded string
         """
-        head = message.build_head(
-            message.PUB,
+        head = messages.build_head(
+            messages.PUB,
             self.subject.encode(),
             b"" if self.reply_to is None else self.reply_to.encode(),
             str(len(self.payload)).encode()
         )
-        return head + message.CRLF + self.payload + message.CRLF
+        return head + messages.CRLF + self.payload + messages.CRLF

@@ -2,13 +2,16 @@ from pydantic import ValidationError
 from typing_extensions import Self
 
 from .base import BaseServerProtocolMessage
-from ..exceptions import InvalidProtocolMessageBody
+from ..exceptions import InvalidProtocolMessageData
 
 
 class InfoProtocolMessage(BaseServerProtocolMessage):
     """
     NATS protocol message model for INFO message
     """
+    _has_message_body = False
+    _has_message_headers = False
+
     server_id: int
     server_name: str
     version: str
@@ -35,15 +38,17 @@ class InfoProtocolMessage(BaseServerProtocolMessage):
     domain: str | None = None
 
     @classmethod
-    def parse(cls, body: bytes) -> Self:
+    def load(cls, head: bytes, body: bytes = None, headers: dict[bytes, bytes] = None) -> Self:
         """
-        Parse NATS protocol INFO message body
+        Load NATS protocol INFO message from head and body
 
-        Raises ``InvalidProtocolMessageBody`` if message body is invalid
-        :param body: bytes of JSON-encoded NATS protocol INFO message body
+        Raises ``InvalidProtocolMessageData`` if message data is invalid
+        :param head: bytes of JSON-encoded NATS protocol INFO message head
+        :param body: in this protocol message type it doesn't used
+        :param headers: in this protocol message type it doesn't used
         :return: instance of ``InfoProtocolMessage``
         """
         try:
-            return cls.parse_raw(body)
+            return cls.parse_raw(head)
         except ValidationError:
-            raise InvalidProtocolMessageBody(body)
+            raise InvalidProtocolMessageData(head, body)
