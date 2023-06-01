@@ -28,6 +28,15 @@ def encode_headers(headers: dict[str, str]) -> dict[bytes, bytes]:
     return {k.encode(): v.encode() for k, v in headers.items()}
 
 
+def decode_headers(headers: dict[bytes, bytes]) -> dict[str, str]:
+    """
+    Decode headers dictionary from bytes-bytes to string-string
+    :param headers: bytes-bytes headers dictionary
+    :return: string-decoded headers dictionary
+    """
+    return {k.decode(): v.decode() for k, v in headers.items()}
+
+
 def build_head(method: bytes, *params: bytes) -> bytes:
     """
     Build NATS protocol message head (params are joined and cleaned for multiple whitespaces)

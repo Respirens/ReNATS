@@ -1,4 +1,3 @@
-import abc
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
@@ -22,15 +21,12 @@ class BaseServerProtocolMessage(ABC, BaseModel):
     """
     Base NATS protocol message model for messages sent by server
     """
-    _has_message_body = NotImplemented
-    _has_message_headers = NotImplemented
-
     @classmethod
     @abstractmethod
-    def load(cls, head: bytes, body: bytes = None, headers: dict[bytes, bytes] = None) -> Self:
+    def load(cls, params: tuple, body: bytes = None, headers: dict[bytes, bytes] = None) -> Self:
         """
         Load NATS protocol message from head and body
-        :param head: NATS protocol message head
+        :param params: NATS protocol message params
         :param body: NATS protocol message body
         :param headers: NATS protocol message headers
         :return: instance of ``ProtocolMessage``
