@@ -12,7 +12,7 @@ class UnknownProtocolMessage(Exception):
 
 
 class InvalidProtocolMessageData(Exception):
-    def __init__(self, head: bytes, body: bytes):
+    def __init__(self, head: bytes, body: bytes = None):
         self.head = head
         self.body = body
 

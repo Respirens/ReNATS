@@ -1,11 +1,9 @@
-from .base import BaseProtocolMessageParser
-from ..messages.msg import MsgProtocolMessage
-from ...connection.base import BaseConnection
+import re
 
-HEAD_PATTERN = r"^MSG\s+(\w+)\s+(\d+)\s+(\d+)\s+(\d+)"
+from .base import BaseProtocolMessageParser
+
+HEAD_PATTERN = re.compile(br"^MSG\s+(\S+)\s+(\S+)\s+((\S+)\s+)?(\d+)")
 
 
 class MsgProtocolMessageParser(BaseProtocolMessageParser):
-    @classmethod
-    def parse(cls, head: bytes, connection: BaseConnection) -> MsgProtocolMessage:
-        pass
+    pass
