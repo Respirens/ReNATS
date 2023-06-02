@@ -1,7 +1,7 @@
 from pydantic import validator
 
-from . import messages
 from .base import BaseClientProtocolMessage
+from .. import utils, protocol
 
 
 class PubProtocolMessage(BaseClientProtocolMessage):
@@ -35,10 +35,10 @@ class PubProtocolMessage(BaseClientProtocolMessage):
         Dump NATS protocol PUB message to bytes
         :return: NATS protocol PUB message as bytes-encoded string
         """
-        head = messages.build_head(
-            messages.PUB,
+        head = utils.build_head(
+            protocol.PUB,
             self.subject.encode(),
             b"" if self.reply_to is None else self.reply_to.encode(),
             str(len(self.payload)).encode()
         )
-        return head + messages.CRLF + self.payload + messages.CRLF
+        return head + utils.CRLF + self.payload + utils.CRLF

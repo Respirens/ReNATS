@@ -1,7 +1,7 @@
 from pydantic import validator
 
-from . import messages
 from .base import BaseClientProtocolMessage
+from .. import utils, protocol
 
 
 class SubProtocolMessage(BaseClientProtocolMessage):
@@ -43,10 +43,10 @@ class SubProtocolMessage(BaseClientProtocolMessage):
         Dump NATS protocol SUB message to bytes
         :return: NATS protocol SUB message as bytes-encoded string
         """
-        head = messages.build_head(
-            messages.SUB,
+        head = utils.build_head(
+            protocol.SUB,
             self.subject.encode(),
             b"" if self.queue_group is None else self.queue_group.encode(),
             self.sid.encode()
         )
-        return head + messages.CRLF
+        return head + utils.CRLF

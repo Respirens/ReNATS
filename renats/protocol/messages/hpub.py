@@ -1,7 +1,7 @@
 from pydantic import validator
 
-from . import messages
 from .pub import PubProtocolMessage
+from .. import utils, protocol
 
 
 class HPubProtocolMessage(PubProtocolMessage):
@@ -22,12 +22,12 @@ class HPubProtocolMessage(PubProtocolMessage):
         Dump NATS protocol HPUB message to bytes
         :return: NATS protocol HPUB message as bytes-encoded string
         """
-        headers = messages.build_headers(messages.encode_headers(self.headers))
-        head = messages.build_head(
-            messages.HPUB,
+        headers = utils.build_headers(utils.encode_headers(self.headers))
+        head = utils.build_head(
+            protocol.HPUB,
             self.subject.encode(),
             b"" if self.reply_to is None else self.reply_to.encode(),
-            str(len(headers + messages.CRLF + messages.CRLF)).encode(),
-            str(len(headers + messages.CRLF + messages.CRLF + self.payload)).encode()
+            str(len(headers + utils.CRLF + utils.CRLF)).encode(),
+            str(len(headers + utils.CRLF + utils.CRLF + self.payload)).encode()
         )
-        return head + messages.CRLF + headers + messages.CRLF + messages.CRLF + self.payload + messages.CRLF
+        return head + utils.CRLF + headers + utils.CRLF + utils.CRLF + self.payload + utils.CRLF

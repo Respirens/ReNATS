@@ -1,7 +1,7 @@
 from pydantic import validator
 
-from . import messages
 from .base import BaseClientProtocolMessage
+from .. import utils, protocol
 
 
 class UnsubProtocolMessage(BaseClientProtocolMessage):
@@ -24,9 +24,9 @@ class UnsubProtocolMessage(BaseClientProtocolMessage):
         Dump NATS protocol UNSUB message to bytes
         :return: NATS protocol UNSUB message as bytes-encoded string
         """
-        head = messages.build_head(
-            messages.UNSUB,
+        head = utils.build_head(
+            protocol.UNSUB,
             self.sid.encode(),
             b"" if self.max_msgs is None else str(self.max_msgs).encode()
         )
-        return head + messages.CRLF
+        return head + utils.CRLF

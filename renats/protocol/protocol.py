@@ -1,16 +1,33 @@
 from typing import Final
 
-from .messages import messages
-from .parsers.base import BaseProtocolMessageParser
-from .parsers.info import InfoProtocolMessageParser
-from .parsers.msg import MsgProtocolMessageParser
-from .processors.base import BaseClientMessageProcessor, BaseServerMessageProcessor
+from .messages.base import BaseProtocolMessageParser
 
-MESSAGE_PARSERS: Final[dict[bytes, type[BaseProtocolMessageParser]]] = {
-    messages.INFO: InfoProtocolMessageParser,
-    messages.MSG: MsgProtocolMessageParser
-}
+HEADERS_VERSION: Final[bytes] = b"NATS/1.0"
 
-CLIENT_PROCESSORS: Final[dict[bytes, type[BaseClientMessageProcessor]]] = {}
+INFO: Final[bytes] = b"INFO"
+CONNECT: Final[bytes] = b"CONNECT"
+PUB: Final[bytes] = b"PUB"
+HPUB: Final[bytes] = b"HPUB"
+SUB: Final[bytes] = b"SUB"
+UNSUB: Final[bytes] = b"UNSUB"
+MSG: Final[bytes] = b"MSG"
+HMSG: Final[bytes] = b"HMSG"
+PING: Final[bytes] = b"PING"
+PONG: Final[bytes] = b"PONG"
+OK: Final[bytes] = b"+OK"
+ERR: Final[bytes] = b"-ERR"
 
-SERVER_PROCESSORS: Final[dict[bytes, type[BaseServerMessageProcessor]]] = {}
+MESSAGES: Final[list[bytes]] = [
+    INFO,
+    MSG,
+    HMSG,
+    CONNECT,
+    PUB,
+    HPUB,
+    SUB,
+    UNSUB,
+    PING,
+    PONG,
+    OK,
+    ERR
+]

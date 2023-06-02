@@ -1,22 +1,9 @@
 import re
 from typing import Final
 
-HEADERS_VERSION: Final[bytes] = b"NATS/1.0"
+from .protocol import HEADERS_VERSION
 
 CRLF: Final[bytes] = b"\r\n"
-
-INFO: Final[bytes] = b"INFO"
-CONNECT: Final[bytes] = b"CONNECT"
-PUB: Final[bytes] = b"PUB"
-HPUB: Final[bytes] = b"HPUB"
-SUB: Final[bytes] = b"SUB"
-UNSUB: Final[bytes] = b"UNSUB"
-MSG: Final[bytes] = b"MSG"
-HMSG: Final[bytes] = b"HMSG"
-PING: Final[bytes] = b"PING"
-PONG: Final[bytes] = b"PONG"
-OK: Final[bytes] = b"+OK"
-ERR: Final[bytes] = b"-ERR"
 
 
 def encode_headers(headers: dict[str, str]) -> dict[bytes, bytes]:
