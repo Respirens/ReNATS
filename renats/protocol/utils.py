@@ -4,6 +4,7 @@ from typing import Final
 from .protocol import HEADERS_VERSION
 
 CRLF: Final[bytes] = b"\r\n"
+CRLF_SIZE: Final[int] = len(CRLF)
 
 
 def encode_headers(headers: dict[str, str]) -> dict[bytes, bytes]:

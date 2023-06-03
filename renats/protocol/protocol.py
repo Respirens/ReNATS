@@ -1,7 +1,5 @@
 from typing import Final
 
-from .messages.base import BaseProtocolMessageParser
-
 HEADERS_VERSION: Final[bytes] = b"NATS/1.0"
 
 INFO: Final[bytes] = b"INFO"
