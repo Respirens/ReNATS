@@ -27,10 +27,6 @@ class TcpConnection(BaseConnection):
     def write(self, data: bytes):
         self._writer.write(data)
 
-    async def send(self, data: bytes):
-        self.write(data)
-        await self.drain()
-
     async def drain(self):
         await self._writer.drain()
 

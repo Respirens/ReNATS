@@ -23,10 +23,6 @@ class BaseConnection(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def send(self, data: bytes):
-        raise NotImplementedError()
-
-    @abstractmethod
     async def drain(self):
         raise NotImplementedError()
 
