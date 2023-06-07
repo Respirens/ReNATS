@@ -1,5 +1,5 @@
-from abc import ABC
+from enum import Enum
 
 
-class Connection(ABC):
-    pass
+class ConnectionType(Enum):
+    TCP = 0

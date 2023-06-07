@@ -1,1 +1,1 @@
-from .client import NatsClient
+from .client import NatsClient, connect
