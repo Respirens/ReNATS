@@ -1,13 +1,14 @@
 import re
 
-from pydantic import BaseModel, Field
+import msgspec.json
+from msgspec import Struct, field
 
 from .base import SerializableProtocolMessage
 
 INFO_HEAD_PATTERN = re.compile(br"^INFO\s+(.+)\r\n$")
 
 
-class InfoProtocolMessage(BaseModel):
+class InfoProtocolMessage(Struct):
     """
     NATS protocol message model for INFO message
     """
@@ -37,19 +38,19 @@ class InfoProtocolMessage(BaseModel):
     domain: str | None = None
 
 
-class ConnectProtocolMessage(BaseModel, SerializableProtocolMessage):
+class ConnectProtocolMessage(Struct, SerializableProtocolMessage, omit_defaults=True):
     """
     NATS protocol message model for CONNECT message
     """
     verbose: bool
     pedantic: bool
     tls_required: bool
-    auth_token: str | None = None
-    user: str | None = None
-    password: str | None = Field(None, alias="pass")
-    name: str | None = None
     lang: str
     version: str
+    auth_token: str | None = None
+    user: str | None = None
+    password: str | None = field(name="pass")
+    name: str | None = None
     protocol: int | None = None
     echo: bool | None = None
     sig: str | None = None
@@ -63,10 +64,10 @@ class ConnectProtocolMessage(BaseModel, SerializableProtocolMessage):
         Dump NATS protocol CONNECT message to bytes
         :return: NATS protocol CONNECT message as bytes-encoded string
         """
-        return f"CONNECT {self.json(skip_defaults=True)}\r\n".encode()
+        return f"CONNECT {msgspec.json.encode(self)}\r\n".encode()
 
 
-class ErrProtocolMessage(BaseModel):
+class ErrProtocolMessage(Struct):
     """
     NATS protocol message model for ERR message
     """

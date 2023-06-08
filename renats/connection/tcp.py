@@ -1,6 +1,5 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
-from typing import Final
 
 from .base import BaseConnection
 
