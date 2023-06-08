@@ -1,34 +1,16 @@
-from pydantic import validator, BaseModel
+from msgspec import Struct
 
-from .. import utils, protocol
 from .base import SerializableProtocolMessage
+from .. import utils, protocol
 
 
-class PubProtocolMessage(BaseModel, SerializableProtocolMessage):
+class PubProtocolMessage(Struct, SerializableProtocolMessage):
     """
     NATS protocol message model for PUB message
     """
     subject: str
     reply_to: str | None = None
     payload: bytes = b""
-
-    @validator("subject")
-    def check_subject(cls, v):
-        if len(v) == 0:
-            raise ValueError("Subject can't be empty string")
-        if " " in v:
-            raise ValueError("Subject can't contain whitespaces")
-        return v
-
-    @validator("reply_to")
-    def check_reply_to(cls, v):
-        if v is None:
-            return v
-        if len(v) == 0:
-            raise ValueError("Reply to can't be empty string, use None instead")
-        if " " in v:
-            raise ValueError("Reply to can't contain whitespaces")
-        return v
 
     def dump(self) -> bytes:
         """
@@ -44,18 +26,14 @@ class PubProtocolMessage(BaseModel, SerializableProtocolMessage):
         return head + utils.CRLF + self.payload + utils.CRLF
 
 
-class HPubProtocolMessage(PubProtocolMessage):
+class HPubProtocolMessage(Struct, SerializableProtocolMessage):
     """
     NATS protocol message model for HPUB message
     """
+    subject: str
     headers: dict[str, str]
-
-    @validator("headers")
-    def check_headers(cls, v):
-        for key in v:
-            if key.strip() != key:
-                raise ValueError("Header keys must be stripped")
-        return v
+    reply_to: str | None = None
+    payload: bytes = b""
 
     def dump(self) -> bytes:
         """

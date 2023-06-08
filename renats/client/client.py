@@ -3,6 +3,8 @@ import logging
 from asyncio import Task
 from typing import Final
 
+import msgspec.json
+
 from .types import Server
 from ..connection.base import BaseConnection
 from ..connection.tcp import TcpConnection
@@ -61,7 +63,10 @@ class NatsClient:
         await self.send_raw(protocol_message.dump())
 
     async def _process_connection_init(self):
-        info = InfoProtocolMessage.parse_raw((await self.connection.readline()).split(b" ", 1)[1].decode())
+        info = msgspec.json.decode(
+            (await self.connection.readline()).split(b" ", 1)[1].decode(),
+            type=InfoProtocolMessage
+        )
         self.logger.info(f"Received INFO: {info}")
         self._server = Server(
             id=info.server_id,
