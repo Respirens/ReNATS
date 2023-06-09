@@ -1,1 +1,1 @@
-from .client import NatsClient, connect
+from .client import NATSClient, connect

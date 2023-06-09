@@ -4,6 +4,7 @@ from asyncio import Task
 from typing import Final
 
 import msgspec.json
+from typing_extensions import Self
 
 from .types import Server
 from ..connection.base import BaseConnection
@@ -19,7 +20,7 @@ CLIENT_LANGUAGE: Final[str] = "python3"
 CLIENT_VERSION: Final[str] = "0.0.1-alpha"
 
 
-class NatsClient:
+class NATSClient:
     def __init__(self):
         self._connection: BaseConnection | None = None
         self._server: Server | None = None
@@ -94,11 +95,12 @@ class NatsClient:
             if line == protocol.PING + utils.CRLF:
                 await self.send_raw(protocol.PONG + utils.CRLF)
 
-    async def connect(self, host: str, port: int):
+    async def connect(self, host: str, port: int) -> Self:
         self.connection = TcpConnection()
         await self.connection.connect(host, port, DEFAULT_CONNECTION_TIMEOUT)
         await self._process_connection_init()
         self._handler_task = asyncio.get_running_loop().create_task(self._handler())
+        return self
 
     async def close(self):
         self._handler_task.cancel()
@@ -122,9 +124,3 @@ class NatsClient:
                 reply_to=reply
             )
         )
-
-
-async def connect(host: str = "127.0.0.1", port: int = 4222) -> NatsClient:
-    client = NatsClient()
-    await client.connect(host, port)
-    return client
