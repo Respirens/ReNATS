@@ -6,11 +6,14 @@ from typing import Final
 import msgspec.json
 from typing_extensions import Self
 
+from . import parser
+from .subscription import Subscription
 from .types import Server
 from ..connection.base import BaseConnection
 from ..connection.tcp import TcpConnection
-from ..protocol import protocol, utils
+from ..protocol import protocol
 from ..protocol.messages.base import SerializableProtocolMessage
+from ..protocol.messages.msg import MsgProtocolMessage, HMsgProtocolMessage
 from ..protocol.messages.pub import PubProtocolMessage, HPubProtocolMessage
 from ..protocol.messages.service import InfoProtocolMessage, ConnectProtocolMessage
 
@@ -22,10 +25,11 @@ CLIENT_VERSION: Final[str] = "0.0.1-alpha"
 
 class NATSClient:
     def __init__(self):
+        self._logger: logging.Logger = logging.getLogger(__name__)
         self._connection: BaseConnection | None = None
         self._server: Server | None = None
-        self._logger: logging.Logger = logging.getLogger(__name__)
         self._handler_task: Task | None = None
+        self._subscriptions: dict[str, Subscription] = {}
 
     @property
     def connection(self):
@@ -88,12 +92,27 @@ class NATSClient:
             )
         )
 
+    async def _process_msg(self, msg: MsgProtocolMessage):
+        pass
+
+    async def _process_hmsg(self, msg: HMsgProtocolMessage):
+        pass
+
     async def _handler(self):
         while True:
             line = await self.connection.readline()
-            self.logger.info(f"Received protocol message line: {line}")
-            if line == protocol.PING + utils.CRLF:
-                await self.send_raw(protocol.PONG + utils.CRLF)
+            method, params = line.split(b" ", 1)
+            match method.strip():
+                case protocol.PING:
+                    await self.send_raw(protocol.PONG_MESSAGE)
+                case protocol.ERR:
+                    self.logger.error("Received NATS Error: %s", params)
+                case protocol.MSG:
+                    await self._process_msg(await parser.parse_msg(line, self.connection))
+                case protocol.HMSG:
+                    await self._process_hmsg(await parser.parse_hmsg(line, self.connection))
+                case _:
+                    self.logger.warning(f"Received unknown NATS protocol message: %s", line)
 
     async def connect(self, host: str, port: int) -> Self:
         self.connection = TcpConnection()
