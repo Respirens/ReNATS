@@ -1,4 +1,4 @@
-# ReNats
+# ReNATS
 
 > Elegant, modern and asynchronous NATS Client API framework in Python
 
@@ -17,6 +17,11 @@ await client.publish('my.subject', b'My payload =)', reply='my.reply.subject', h
 
 # Closing client
 await client.close()
+```
+
+### Installation
+```bash
+pip install renats
 ```
 
 ---
