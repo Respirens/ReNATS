@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from msgspec import Struct
 
 
-class Server(BaseModel):
+class Server(Struct):
     id: str
     name: str
     version: str

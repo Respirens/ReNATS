@@ -1,10 +1,9 @@
 from msgspec import Struct
 
-from .base import SerializableProtocolMessage
 from .. import utils, protocol
 
 
-class PubProtocolMessage(Struct, SerializableProtocolMessage):
+class PubProtocolMessage(Struct):
     """
     NATS protocol message model for PUB message
     """
@@ -26,7 +25,7 @@ class PubProtocolMessage(Struct, SerializableProtocolMessage):
         return head + utils.CRLF + self.payload + utils.CRLF
 
 
-class HPubProtocolMessage(Struct, SerializableProtocolMessage):
+class HPubProtocolMessage(Struct):
     """
     NATS protocol message model for HPUB message
     """
@@ -40,7 +39,7 @@ class HPubProtocolMessage(Struct, SerializableProtocolMessage):
         Dump NATS protocol HPUB message to bytes
         :return: NATS protocol HPUB message as bytes-encoded string
         """
-        headers = utils.build_headers(utils.encode_headers(self.headers))
+        headers = utils.build_headers(utils.encode_headers(self.headers), protocol.HEADERS_VERSION)
         head = utils.build_head(
             protocol.HPUB,
             self.subject.encode(),

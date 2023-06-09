@@ -4,7 +4,7 @@ from .base import SerializableProtocolMessage
 from .. import utils, protocol
 
 
-class SubProtocolMessage(Struct, SerializableProtocolMessage):
+class SubProtocolMessage(Struct):
     """
     NATS protocol message model for SUB message
     """
@@ -26,7 +26,7 @@ class SubProtocolMessage(Struct, SerializableProtocolMessage):
         return head + utils.CRLF
 
 
-class UnsubProtocolMessage(Struct, SerializableProtocolMessage):
+class UnsubProtocolMessage(Struct):
     """
     NATS protocol message model for UNSUB message
     """

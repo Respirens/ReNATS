@@ -1,8 +1,9 @@
-from typing import Callable, Awaitable
+import inspect
+from typing import Callable, Any
 
 from renats.client.message import Message
 
-SubscriptionCallbackType = Callable[[Message], Awaitable]
+SubscriptionCallbackType = Callable[[Message], Any]
 
 
 class Subscription:
@@ -12,4 +13,7 @@ class Subscription:
         self.callback = callback
 
     async def __call__(self, message: Message):
-        await self.callback(message)
+        if inspect.iscoroutinefunction(self.callback):
+            await self.callback(message)
+        else:
+            self.callback(message)

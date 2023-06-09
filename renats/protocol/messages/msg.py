@@ -1,11 +1,10 @@
-import re
-
 from msgspec import Struct
-
-MSG_HEAD_PATTERN = re.compile(br"^MSG\s+(\S+)\s+(\S+)\s+((\S+)\s+)?(\d+)")
 
 
 class MsgProtocolMessage(Struct):
+    subject: str
+    sid: str
+    payload_length: int
     reply_to: str | None = None
     payload: bytes | None = None
 

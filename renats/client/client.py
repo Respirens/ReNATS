@@ -12,7 +12,6 @@ from .types import Server
 from ..connection.base import BaseConnection
 from ..connection.tcp import TcpConnection
 from ..protocol import protocol
-from ..protocol.messages.base import SerializableProtocolMessage
 from ..protocol.messages.msg import MsgProtocolMessage, HMsgProtocolMessage
 from ..protocol.messages.pub import PubProtocolMessage, HPubProtocolMessage
 from ..protocol.messages.service import InfoProtocolMessage, ConnectProtocolMessage
@@ -59,20 +58,15 @@ class NATSClient:
     def logger(self):
         return self._logger
 
-    async def send_raw(self, message: bytes):
+    async def send(self, message: bytes):
         self._connection.write(message)
         await self._connection.drain()
-        self.logger.info(f"Protocol message sent: {message}")
-
-    async def send(self, protocol_message: SerializableProtocolMessage):
-        await self.send_raw(protocol_message.dump())
 
     async def _process_connection_init(self):
         info = msgspec.json.decode(
             (await self.connection.readline()).split(b" ", 1)[1].decode(),
             type=InfoProtocolMessage
         )
-        self.logger.info(f"Received INFO: {info}")
         self._server = Server(
             id=info.server_id,
             headers_support=info.headers,
@@ -89,7 +83,7 @@ class NATSClient:
                 lang=CLIENT_LANGUAGE,
                 version=CLIENT_VERSION,
                 headers=True
-            )
+            ).dump()
         )
 
     async def _process_msg(self, msg: MsgProtocolMessage):
@@ -101,12 +95,12 @@ class NATSClient:
     async def _handler(self):
         while True:
             line = await self.connection.readline()
-            method, params = line.split(b" ", 1)
-            match method.strip():
+            head = line.split(b" ", 1)
+            match head[0].strip():
                 case protocol.PING:
-                    await self.send_raw(protocol.PONG_MESSAGE)
+                    await self.send(protocol.PONG_MESSAGE)
                 case protocol.ERR:
-                    self.logger.error("Received NATS Error: %s", params)
+                    self.logger.error("Received NATS Error: %s", head[1])
                 case protocol.MSG:
                     await self._process_msg(await parser.parse_msg(line, self.connection))
                 case protocol.HMSG:
@@ -133,7 +127,7 @@ class NATSClient:
                     payload=data,
                     reply_to=reply,
                     headers=headers
-                )
+                ).dump()
             )
             return
         await self.send(
@@ -141,5 +135,5 @@ class NATSClient:
                 subject=subject,
                 payload=data,
                 reply_to=reply
-            )
+            ).dump()
         )
