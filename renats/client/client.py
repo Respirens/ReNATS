@@ -22,10 +22,11 @@ DEFAULT_CONNECTION_TIMEOUT: Final[float] = 2
 DEFAULT_INFO_WAITING_TIMEOUT: Final[float] = 2
 
 CLIENT_LANGUAGE: Final[str] = "python3"
-CLIENT_VERSION: Final[str] = "0.2.2-alpha"
+CLIENT_VERSION: Final[str] = "0.2.2-alpha-1"
 
 CLIENT_CONNECTION_VERBOSE: Final[bool] = False
 CLIENT_CONNECTION_PEDANTIC: Final[bool] = True
+CLIENT_SUPPORT_HEADERS: Final[bool] = False
 
 HeadersType = dict[str, str]
 
@@ -74,7 +75,7 @@ class NATSClient(NATS):
                 tls_required=False,
                 lang=CLIENT_LANGUAGE,
                 version=CLIENT_VERSION,
-                headers=True
+                headers=CLIENT_SUPPORT_HEADERS
             ).dump()
         )
 
