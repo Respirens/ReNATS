@@ -38,7 +38,7 @@ class InfoProtocolMessage(Struct):
     domain: str | None = None
 
 
-class ConnectProtocolMessage(Struct, SerializableProtocolMessage, omit_defaults=True):
+class ConnectProtocolMessage(Struct, omit_defaults=True):
     """
     NATS protocol message model for CONNECT message
     """
@@ -49,7 +49,7 @@ class ConnectProtocolMessage(Struct, SerializableProtocolMessage, omit_defaults=
     version: str
     auth_token: str | None = None
     user: str | None = None
-    password: str | None = field(name="pass")
+    password: str | None = field(default=None, name="pass")
     name: str | None = None
     protocol: int | None = None
     echo: bool | None = None
@@ -64,11 +64,4 @@ class ConnectProtocolMessage(Struct, SerializableProtocolMessage, omit_defaults=
         Dump NATS protocol CONNECT message to bytes
         :return: NATS protocol CONNECT message as bytes-encoded string
         """
-        return f"CONNECT {msgspec.json.encode(self)}\r\n".encode()
-
-
-class ErrProtocolMessage(Struct):
-    """
-    NATS protocol message model for ERR message
-    """
-    error_message: str
+        return b"CONNECT " + msgspec.json.encode(self) + b"\r\n"

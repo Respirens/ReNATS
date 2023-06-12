@@ -109,13 +109,13 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "pytest"
-version = "7.3.1"
+version = "7.3.2"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.3.1-py3-none-any.whl", hash = "sha256:3799fa815351fea3a5e96ac7e503a96fa51cc9942c3753cda7651b93c1cfa362"},
-    {file = "pytest-7.3.1.tar.gz", hash = "sha256:434afafd78b1d78ed0addf160ad2b77a30d35d4bdf8af234fe621919d9ed15e3"},
+    {file = "pytest-7.3.2-py3-none-any.whl", hash = "sha256:cdcbd012c9312258922f8cd3f1b62a6580fdced17db6014896053d47cddf9295"},
+    {file = "pytest-7.3.2.tar.gz", hash = "sha256:ee990a3cc55ba808b80795a79944756f315c67c12b56abd3ac993a7b8c17030b"},
 ]
 
 [package.dependencies]
@@ -127,7 +127,7 @@ pluggy = ">=0.12,<2.0"
 tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 
 [package.extras]
-testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "xmlschema"]
+testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
 
 [[package]]
 name = "tomli"
@@ -151,7 +151,18 @@ files = [
     {file = "typing_extensions-4.6.3.tar.gz", hash = "sha256:d91d5919357fe7f681a9f2b5b4cb2a5f1ef0a1e9f59c4d8ff0d3491e05c0ffd5"},
 ]
 
+[[package]]
+name = "uuid6"
+version = "2023.5.2"
+description = "New time-based UUID formats which are suited for use as a database key"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "uuid6-2023.5.2-py3-none-any.whl", hash = "sha256:9a8125a621426f24d3e4811f9885e7c0c6567ed3cc47f68fe8d41112e603bf85"},
+    {file = "uuid6-2023.5.2.tar.gz", hash = "sha256:03cb97f25ca7b0ac4bea2b3a205f66bfe7f58d3b179bb0f76e1d7946446b6133"},
+]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "ae01fbdeba5e4144ba01185a32aa798fbc03fb19a9adbb1ec49b1195147735f9"
+content-hash = "cf36267b63a0524295d701c5a43ab7a537edc2a5afad59a77981f764babe1676"

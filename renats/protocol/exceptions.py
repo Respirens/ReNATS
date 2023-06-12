@@ -11,7 +11,7 @@ class UnknownProtocolMessage(Exception):
         return f"Unknown NATS protocol message type: {self.message_type.decode()}"
 
 
-class InvalidProtocolMessageData(Exception):
+class InvalidProtocolMessage(Exception):
     def __init__(self, data: bytes):
         self.data = data
 

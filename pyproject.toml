@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ReNATS"
-version = "0.2.0"
+version = "0.2.2-alpha"
 description = ""
 authors = ["Respirens <thesergiyprotsanin@gmail.com>"]
 readme = "README.md"
@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.10"
 msgspec = "^0.15.1"
 typing-extensions = "^4.6.3"
+uuid6 = "^2023.5.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"

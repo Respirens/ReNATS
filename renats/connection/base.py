@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class BaseConnection(ABC):
+class Connection(ABC):
     @abstractmethod
     async def connect(self, host: str, port: int, timeout: float):
         raise NotImplementedError()
@@ -25,6 +25,10 @@ class BaseConnection(ABC):
     @abstractmethod
     async def drain(self):
         raise NotImplementedError()
+
+    async def send(self, data: bytes):
+        self.write(data)
+        await self.drain()
 
     @abstractmethod
     async def close(self):

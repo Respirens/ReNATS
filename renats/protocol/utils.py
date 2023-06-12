@@ -1,8 +1,6 @@
 import re
 from typing import Final
 
-from .protocol import HEADERS_VERSION
-
 CRLF: Final[bytes] = b"\r\n"
 CRLF_SIZE: Final[int] = len(CRLF)
 
@@ -35,10 +33,11 @@ def build_head(method: bytes, *params: bytes) -> bytes:
     return method + b" " + re.sub(br"\s{2,}", b" ", b" ".join(params))
 
 
-def build_headers(headers: dict[bytes, bytes]) -> bytes:
+def build_headers(headers: dict[bytes, bytes], headers_version: bytes) -> bytes:
     """
     Build NATS protocol message headers
     :param headers: dictionary with bytes-encoded headers
+    :param headers_version: headers version string (NATS/1.0)
     :return: protocol message headers as bytes-encoded string
     """
-    return HEADERS_VERSION + CRLF + CRLF.join([k + b": " + v for k, v in headers.items()])
+    return headers_version + CRLF + CRLF.join([k + b": " + v for k, v in headers.items()])
