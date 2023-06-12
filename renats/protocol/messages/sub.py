@@ -1,6 +1,5 @@
 from msgspec import Struct
 
-from .base import SerializableProtocolMessage
 from .. import utils, protocol
 
 

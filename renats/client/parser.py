@@ -1,6 +1,6 @@
 import re
 
-from renats.connection.base import BaseConnection
+from renats.connection.base import Connection
 from renats.protocol import utils
 from renats.protocol.exceptions import InvalidProtocolMessage
 from renats.protocol.messages.msg import MsgProtocolMessage, HMsgProtocolMessage
@@ -8,7 +8,7 @@ from renats.protocol.messages.msg import MsgProtocolMessage, HMsgProtocolMessage
 MSG_HEAD_PATTERN = re.compile(br"^MSG\s+(\S+)\s+(\S+)\s+((\S+)\s+)?(\d+)")
 
 
-async def parse_msg(head: bytes, connection: BaseConnection) -> MsgProtocolMessage:
+async def parse_msg(head: bytes, connection: Connection) -> MsgProtocolMessage:
     match = re.match(MSG_HEAD_PATTERN, head)
     if match is None:
         raise InvalidProtocolMessage(head)
@@ -23,5 +23,5 @@ async def parse_msg(head: bytes, connection: BaseConnection) -> MsgProtocolMessa
     )
 
 
-async def parse_hmsg(head: bytes, connection: BaseConnection) -> HMsgProtocolMessage:
+async def parse_hmsg(head: bytes, connection: Connection) -> HMsgProtocolMessage:
     pass

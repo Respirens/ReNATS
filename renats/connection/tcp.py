@@ -1,10 +1,10 @@
 import asyncio
 from asyncio import StreamReader, StreamWriter
 
-from .base import BaseConnection
+from .base import Connection
 
 
-class TcpConnection(BaseConnection):
+class TcpConnection(Connection):
     def __init__(self):
         self._reader: StreamReader | None = None
         self._writer: StreamWriter | None = None

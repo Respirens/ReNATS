@@ -7,78 +7,67 @@ import msgspec.json
 from typing_extensions import Self
 
 from . import parser
-from .subscription import Subscription
-from .types import Server
-from ..connection.base import BaseConnection
+from .subscription import Subscription, SubscriptionManager, SubscriptionCallbackType
+from ..connection.base import Connection
 from ..connection.tcp import TcpConnection
 from ..protocol import protocol
 from ..protocol.messages.msg import MsgProtocolMessage, HMsgProtocolMessage
 from ..protocol.messages.pub import PubProtocolMessage, HPubProtocolMessage
 from ..protocol.messages.service import InfoProtocolMessage, ConnectProtocolMessage
+from ..protocol.messages.sub import SubProtocolMessage
 
 DEFAULT_CONNECTION_TIMEOUT: Final[float] = 2
-DEFAULT_INFO_TIMEOUT: Final[float] = 2
+DEFAULT_INFO_WAITING_TIMEOUT: Final[float] = 2
+
 CLIENT_LANGUAGE: Final[str] = "python3"
-CLIENT_VERSION: Final[str] = "0.0.1-alpha"
+CLIENT_VERSION: Final[str] = "0.2.1-alpha"
+
+CLIENT_CONNECTION_VERBOSE: Final[bool] = False
+CLIENT_CONNECTION_PEDANTIC: Final[bool] = True
+
+HeadersType = dict[str, str]
 
 
 class NATSClient:
     def __init__(self):
         self._logger: logging.Logger = logging.getLogger(__name__)
-        self._connection: BaseConnection | None = None
-        self._server: Server | None = None
+        self._connection: Connection | None = None
+        self._connection_info: InfoProtocolMessage | None = None
         self._handler_task: Task | None = None
-        self._subscriptions: dict[str, Subscription] = {}
-
-    @property
-    def connection(self):
-        return self._connection
-
-    @connection.setter
-    def connection(self, value: BaseConnection):
-        if self._connection is not None and not self._connection.closed:
-            raise RuntimeError("Replacing non-closed connection is not allowed")
-        self._connection = value
+        self._subscriptions: SubscriptionManager = SubscriptionManager()
 
     @property
     def available(self):
-        return (
-                self._connection is not None
-                and
-                not self._connection.closed
-                and
-                self._server is not None
+        return all(
+            (
+                self._connection is not None,
+                not self._connection.closed,
+                self._connection_info is not None
+            )
         )
-
-    @property
-    def server(self):
-        return self._server
 
     @property
     def logger(self):
         return self._logger
 
-    async def send(self, message: bytes):
-        self._connection.write(message)
-        await self._connection.drain()
+    @property
+    def connection(self):
+        return self._connection
+
+    @property
+    def connection_info(self):
+        return self._connection_info
 
     async def _process_connection_init(self):
         info = msgspec.json.decode(
-            (await self.connection.readline()).split(b" ", 1)[1].decode(),
+            (await self._connection.readline()).split(b" ", 1)[1].decode(),
             type=InfoProtocolMessage
         )
-        self._server = Server(
-            id=info.server_id,
-            headers_support=info.headers,
-            max_payload=info.max_payload,
-            name=info.server_name,
-            protocol=info.proto,
-            version=info.version
-        )
-        await self.send(
+        self._connection_info = info
+        await self._connection.send(
             ConnectProtocolMessage(
-                verbose=False,
-                pedantic=True,
+                verbose=CLIENT_CONNECTION_VERBOSE,
+                pedantic=CLIENT_CONNECTION_PEDANTIC,
                 tls_required=False,
                 lang=CLIENT_LANGUAGE,
                 version=CLIENT_VERSION,
@@ -98,7 +87,7 @@ class NATSClient:
             head = line.split(b" ", 1)
             match head[0].strip():
                 case protocol.PING:
-                    await self.send(protocol.PONG_MESSAGE)
+                    await self._connection.send(protocol.PONG_MESSAGE)
                 case protocol.ERR:
                     self.logger.error("Received NATS Error: %s", head[1])
                 case protocol.MSG:
@@ -109,7 +98,7 @@ class NATSClient:
                     self.logger.warning(f"Received unknown NATS protocol message: %s", line)
 
     async def connect(self, host: str, port: int) -> Self:
-        self.connection = TcpConnection()
+        self._connection = TcpConnection()
         await self.connection.connect(host, port, DEFAULT_CONNECTION_TIMEOUT)
         await self._process_connection_init()
         self._handler_task = asyncio.get_running_loop().create_task(self._handler())
@@ -119,21 +108,27 @@ class NATSClient:
         self._handler_task.cancel()
         await self.connection.close()
 
-    async def publish(self, subject: str, data: bytes = b"", reply: str = None, headers: dict[str, str] = None):
-        if self.server.headers_support and headers is not None:
-            await self.send(
-                HPubProtocolMessage(
-                    subject=subject,
-                    payload=data,
-                    reply_to=reply,
-                    headers=headers
-                ).dump()
-            )
-            return
-        await self.send(
-            PubProtocolMessage(
+    async def publish(self, subject: str, payload: bytes = b"", reply_subject: str = None, headers: HeadersType = None):
+        if self._connection_info.headers and headers is not None:
+            message = HPubProtocolMessage(
                 subject=subject,
-                payload=data,
-                reply_to=reply
-            ).dump()
+                payload=payload,
+                reply_to=reply_subject,
+                headers=headers
+            )
+        else:
+            message = PubProtocolMessage(
+                subject=subject,
+                payload=payload,
+                reply_to=reply_subject
+            )
+        await self._connection.send(message.dump())
+
+    async def subscribe(self, subject: str, callback: SubscriptionCallbackType) -> Subscription:
+        subscription = self._subscriptions.create(subject, callback)
+        message = SubProtocolMessage(
+            subject=subscription.subject,
+            sid=subscription.id
         )
+        await self._connection.send(message.dump())
+        return subscription
