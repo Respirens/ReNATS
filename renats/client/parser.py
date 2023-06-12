@@ -24,4 +24,4 @@ async def parse_msg(head: bytes, connection: Connection) -> MsgProtocolMessage:
 
 
 async def parse_hmsg(head: bytes, connection: Connection) -> HMsgProtocolMessage:
-    pass
+    raise NotImplementedError()

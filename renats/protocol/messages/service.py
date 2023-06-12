@@ -65,10 +65,3 @@ class ConnectProtocolMessage(Struct, omit_defaults=True):
         :return: NATS protocol CONNECT message as bytes-encoded string
         """
         return b"CONNECT " + msgspec.json.encode(self) + b"\r\n"
-
-
-class ErrProtocolMessage(Struct):
-    """
-    NATS protocol message model for ERR message
-    """
-    error_message: str
