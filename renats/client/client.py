@@ -22,7 +22,7 @@ DEFAULT_CONNECTION_TIMEOUT: Final[float] = 2
 DEFAULT_INFO_WAITING_TIMEOUT: Final[float] = 2
 
 CLIENT_LANGUAGE: Final[str] = "python3"
-CLIENT_VERSION: Final[str] = "0.2.1-alpha"
+CLIENT_VERSION: Final[str] = "0.2.2-alpha"
 
 CLIENT_CONNECTION_VERBOSE: Final[bool] = False
 CLIENT_CONNECTION_PEDANTIC: Final[bool] = True
