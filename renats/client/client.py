@@ -7,7 +7,7 @@ import msgspec.json
 from typing_extensions import Self
 
 from . import parser
-from .base import NATS
+from .base import NATS, HeadersType
 from .message import Message
 from .subscription import Subscription, SubscriptionManager, SubscriptionCallbackType
 from ..connection.base import Connection
@@ -27,8 +27,6 @@ CLIENT_VERSION: Final[str] = "0.2.2-alpha-1"
 CLIENT_CONNECTION_VERBOSE: Final[bool] = False
 CLIENT_CONNECTION_PEDANTIC: Final[bool] = True
 CLIENT_SUPPORT_HEADERS: Final[bool] = False
-
-HeadersType = dict[str, str]
 
 
 class NATSClient(NATS):

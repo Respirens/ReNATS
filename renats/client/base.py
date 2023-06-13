@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
+from typing import TypeVar, Callable, Any
 
 from typing_extensions import Self
 
-from renats.client.client import HeadersType
-from renats.client.subscription import SubscriptionCallbackType, Subscription
+from .message import Message
+
+HeadersType = dict[str, str]
+SubscriptionCallbackType = Callable[[Message], Any]
+SubscriptionType = TypeVar("SubscriptionType", bound="Subscription")
 
 
 class NATS(ABC):
@@ -16,7 +20,7 @@ class NATS(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def subscribe(self, subject: str, callback: SubscriptionCallbackType) -> Subscription:
+    async def subscribe(self, subject: str, callback: SubscriptionCallbackType) -> SubscriptionType:
         raise NotImplementedError()
 
     @abstractmethod
