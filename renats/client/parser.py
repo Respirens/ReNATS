@@ -13,11 +13,11 @@ async def parse_msg(head: bytes, connection: Connection) -> MsgProtocolMessage:
     if match is None:
         raise InvalidProtocolMessage(head)
     subject, sid, _, reply_to, payload_length = match.groups()
-    payload = await connection.readexactly(int(payload_length) + utils.CRLF_SIZE)
+    payload = (await connection.readexactly(int(payload_length) + utils.CRLF_SIZE)).removesuffix(b"\r\n")
     return MsgProtocolMessage(
-        subject=subject,
-        sid=sid,
-        reply_to=reply_to,
+        subject=subject.decode(),
+        sid=sid.decode(),
+        reply_to=reply_to.decode(),
         payload_length=int(payload_length),
         payload=payload
     )
