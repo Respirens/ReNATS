@@ -26,10 +26,6 @@ class Connection(ABC):
     async def drain(self):
         raise NotImplementedError()
 
-    async def send(self, data: bytes):
-        self.write(data)
-        await self.drain()
-
     @abstractmethod
     async def close(self):
         raise NotImplementedError()
