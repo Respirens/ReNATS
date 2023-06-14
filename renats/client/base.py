@@ -26,3 +26,7 @@ class NATS(ABC):
     @abstractmethod
     async def unsubscribe(self, subscription_id: str, messages_left: int = 0):
         raise NotImplementedError()
+
+    @abstractmethod
+    async def request(self, subject: str, payload: bytes, headers: HeadersType = None, timeout: float = None):
+        raise NotImplementedError()

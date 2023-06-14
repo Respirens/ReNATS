@@ -30,6 +30,7 @@ CLIENT_SUPPORT_HEADERS: Final[bool] = False
 
 
 class NATSClient(NATS):
+
     def __init__(self):
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._connection: Connection | None = None
@@ -162,3 +163,6 @@ class NATSClient(NATS):
         )
         await self._connection.send(message.dump())
         self._subscriptions.delete(subscription_id, messages_left)
+
+    async def request(self, subject: str, payload: bytes, headers: HeadersType = None, timeout: float = None):
+        raise NotImplementedError()
