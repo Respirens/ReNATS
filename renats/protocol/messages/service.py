@@ -3,8 +3,6 @@ import re
 import msgspec.json
 from msgspec import Struct, field
 
-INFO_HEAD_PATTERN = re.compile(br"^INFO\s+(.+)\r\n$")
-
 
 class InfoProtocolMessage(Struct):
     """
