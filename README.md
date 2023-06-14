@@ -56,7 +56,6 @@ pip install renats
 ```
 
 ### TODO
-- Request-Reply
 - JetStream
 - ObjectStorage
 - Request-Reply API Framework for microservices
