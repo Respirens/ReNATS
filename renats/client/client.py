@@ -9,6 +9,7 @@ from typing_extensions import Self
 from . import parser
 from .base import NATS, HeadersType
 from .message import Message
+from .requests import RequestManager
 from .subscription import Subscription, SubscriptionManager, SubscriptionCallbackType
 from ..connection.base import Connection
 from ..connection.tcp import TcpConnection
@@ -16,7 +17,6 @@ from ..protocol import protocol
 from ..protocol.messages.msg import MsgProtocolMessage, HMsgProtocolMessage
 from ..protocol.messages.pub import PubProtocolMessage, HPubProtocolMessage
 from ..protocol.messages.service import InfoProtocolMessage, ConnectProtocolMessage
-from ..protocol.messages.sub import SubProtocolMessage, UnsubProtocolMessage
 
 DEFAULT_CONNECTION_TIMEOUT: Final[float] = 2
 DEFAULT_INFO_WAITING_TIMEOUT: Final[float] = 2
@@ -30,12 +30,14 @@ CLIENT_SUPPORT_HEADERS: Final[bool] = False
 
 
 class NATSClient(NATS):
+
     def __init__(self):
         self._logger: logging.Logger = logging.getLogger(__name__)
         self._connection: Connection | None = None
         self._connection_info: InfoProtocolMessage | None = None
         self._handler_task: Task | None = None
-        self._subscriptions: SubscriptionManager = SubscriptionManager()
+        self._subscriptions: SubscriptionManager = SubscriptionManager(self)
+        self._requests: RequestManager = RequestManager(self)
 
     @property
     def available(self) -> bool:
@@ -66,7 +68,7 @@ class NATSClient(NATS):
         self._connection_info = info
 
         # Send CONNECT protocol message
-        await self._connection.send(
+        await self.send(
             ConnectProtocolMessage(
                 verbose=CLIENT_CONNECTION_VERBOSE,
                 pedantic=CLIENT_CONNECTION_PEDANTIC,
@@ -104,7 +106,7 @@ class NATSClient(NATS):
             method = head[0].strip()
 
             if method == protocol.PING:
-                await self._connection.send(protocol.PONG_MESSAGE)
+                await self.send(protocol.PONG_MESSAGE)
             elif method == protocol.ERR:
                 self._logger.error("Received NATS error: %s", head[1])
             elif method == protocol.MSG:
@@ -130,6 +132,10 @@ class NATSClient(NATS):
         self._handler_task.cancel()
         await self.connection.close()
 
+    async def send(self, data: bytes):
+        self._connection.write(data)
+        await self._connection.drain()
+
     async def publish(self, subject: str, payload: bytes = b"", reply_subject: str = None, headers: HeadersType = None):
         if self._connection_info.headers and headers is not None:
             message = HPubProtocolMessage(
@@ -144,21 +150,16 @@ class NATSClient(NATS):
                 payload=payload,
                 reply_to=reply_subject
             )
-        await self._connection.send(message.dump())
+        await self.send(message.dump())
 
     async def subscribe(self, subject: str, callback: SubscriptionCallbackType) -> Subscription:
-        subscription = self._subscriptions.create(subject, callback, self)
-        message = SubProtocolMessage(
-            subject=subscription.subject,
-            sid=subscription.id
-        )
-        await self._connection.send(message.dump())
-        return subscription
+        return await self._subscriptions.subscribe(subject, callback)
 
-    async def unsubscribe(self, subscription_id: str, messages_left: int = 0):
-        message = UnsubProtocolMessage(
-            sid=subscription_id,
-            max_msgs=messages_left
-        )
-        await self._connection.send(message.dump())
-        self._subscriptions.delete(subscription_id, messages_left)
+    async def request(
+            self,
+            subject: str,
+            payload: bytes = b"",
+            headers: HeadersType = None,
+            timeout: float = None
+    ) -> Message:
+        return await self._requests.request(subject, payload, headers, timeout)

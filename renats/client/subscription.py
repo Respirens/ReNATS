@@ -5,6 +5,7 @@ import uuid6
 
 from renats.client.base import NATS
 from renats.client.message import Message
+from renats.protocol.messages.sub import SubProtocolMessage, UnsubProtocolMessage
 
 SubscriptionCallbackType = Callable[[Message], Any]
 
@@ -14,23 +15,30 @@ def generate_subscription_id() -> str:
 
 
 class Subscription:
-    def __init__(self, subscription_id: str, subject: str, callback: SubscriptionCallbackType, client: NATS):
+    def __init__(
+            self,
+            subscription_id: str,
+            subject: str,
+            callback: SubscriptionCallbackType,
+            manager: "SubscriptionManager"
+    ):
         self.id = subscription_id
         self.subject = subject
         self.callback = callback
-        self._client = client
+        self._manager = manager
 
     async def unsubscribe(self, messages_left: int = 0):
-        await self._client.unsubscribe(self.id, messages_left)
+        await self._manager.unsubscribe(self.id, messages_left)
 
 
 class SubscriptionManager:
-    def __init__(self):
+    def __init__(self, client: NATS):
+        self._client = client
         self._messages_left: dict[str, int] = {}
         self._callbacks: dict[str, SubscriptionCallbackType] = {}
 
-    def create(self, subject: str, callback: SubscriptionCallbackType, client: NATS) -> Subscription:
-        subscription = Subscription(generate_subscription_id(), subject, callback, client)
+    def create(self, subject: str, callback: SubscriptionCallbackType) -> Subscription:
+        subscription = Subscription(generate_subscription_id(), subject, callback, self)
         self._callbacks[subscription.id] = subscription.callback
         return subscription
 
@@ -49,3 +57,20 @@ class SubscriptionManager:
             await callback(message)
         else:
             callback(message)
+
+    async def subscribe(self, subject: str, callback: SubscriptionCallbackType) -> Subscription:
+        subscription = self.create(subject, callback)
+        message = SubProtocolMessage(
+            subject=subscription.subject,
+            sid=subscription.id
+        )
+        await self._client.send(message.dump())
+        return subscription
+
+    async def unsubscribe(self, subscription_id: str, messages_left: int = 0):
+        message = UnsubProtocolMessage(
+            sid=subscription_id,
+            max_msgs=messages_left
+        )
+        await self._client.send(message.dump())
+        self.delete(subscription_id, messages_left)
